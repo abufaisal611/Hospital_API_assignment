@@ -21,6 +21,6 @@ def sync_user_role_to_doctor(sender, instance, created, **kwargs):
     """
     user = instance.user
     # Fixed: Checked for 'Doctor' (capitalized) to match your User choices
-    if user.role != 'Doctor':
+    if user.role == 'Patient':
         user.role = 'Doctor'
         user.save(update_fields=['role'])

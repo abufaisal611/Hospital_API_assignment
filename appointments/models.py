@@ -20,6 +20,7 @@ class UserManager(BaseUserManager):
     def create_superuser(self, email, password=None, **extra_fields):
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
+        extra_fields.setdefault('role', 'Admin')  # Ensure superuser has Admin role
 
         if extra_fields.get('is_staff') is not True:
             raise ValueError('Superuser must have is_staff=True.')
@@ -34,12 +35,12 @@ class User(AbstractUser):
         ('Doctor', 'Doctor'),
         ('Patient', 'Patient'),
     )
-    username = None  # Explicitly disabled as per your architecture
+    username = None  
     email = models.EmailField(unique=True)
     full_name = models.CharField(max_length=255)
     phone_number = models.CharField(max_length=15, unique=True)
-    address = models.TextField()
-    role = models.CharField(max_length=10, choices=ROLE_CHOICES)
+    address = models.TextField(blank=True, null=True)
+    role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='Patient')
 
     objects = UserManager()
 
@@ -66,7 +67,7 @@ class Doctor(models.Model):
             raise ValidationError("Visiting fee cannot be negative.")
 
     def __str__(self):
-        return self.user.full_name
+        return f" {self.user.full_name}-{self.department}"
 
 
 # =====================================================================

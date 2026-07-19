@@ -12,14 +12,16 @@ from .serializers import (
     UserSerializer, 
     BillSerializer, 
     RegistrationSerializer,
-    MyTokenObtainPairSerializer
+    MyTokenObtainPairSerializer,
+    ForgotPasswordSerializer,
+    ResetPasswordSerializer 
 )
 from .permissions import IsAdminUserRole, AppointmentPermission
 
 User = get_user_model()
 
 # =====================================================================
-# 1. & 2. REGISTRATION & USER MANAGEMENT (Patient Signup / Admin Control)
+# REGISTRATION & USER MANAGEMENT (Patient Signup / Admin Control)
 # =====================================================================
 class RegistrationViewSet(viewsets.ModelViewSet):
     """
@@ -37,35 +39,47 @@ class RegistrationViewSet(viewsets.ModelViewSet):
         if self.action == 'create':
             return [permissions.AllowAny()]
         return [IsAdminUserRole()]  # Only Admin can update/list users (e.g., upgrade to Doctor)
+    
+
+class ForgotPasswordView(APIView):
+    permission_classes = [permissions.AllowAny]
+    def post(self, request):
+        serializer = ForgotPasswordSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        # In a real app, you would generate a token and email it here.
+        # For this learning project, returning a mock success response is perfect.
+        return Response({"message": "Password reset link sent to email."}, status=status.HTTP_200_OK)
+
+class ResetPasswordView(APIView):
+    permission_classes = [permissions.AllowAny]
+    def post(self, request):
+        serializer = ResetPasswordSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        # Mock logic matching the serializer validation validation sequence
+        return Response({"message": "Password has been successfully updated."}, status=status.HTTP_200_OK)
 
 
 # =====================================================================
-# 3. LOGIN VIEW (JWT Token Authentication)
+# LOGIN VIEW (JWT Token Authentication)
 # =====================================================================
-class CustomLoginView(TokenObtainPairView):
-    """
-    Uses SimpleJWT to validate credentials, returns Access & Refresh tokens,
-    plus the user's role and email customized in the custom serializer claims.
-    """
+class LoginView(TokenObtainPairView):
+    
     serializer_class = MyTokenObtainPairSerializer
     permission_classes = [permissions.AllowAny]
 
 
 # =====================================================================
-# 4. DOCTOR VIEWSET (Watching Doctors - Open to Public)
+# DOCTOR VIEWSET (Watching Doctors - Open to Public)
 # =====================================================================
 class DoctorViewSet(viewsets.ModelViewSet):
-    """
-    Allows anyone to view doctors, filter by department, search by name, 
-    and sort by visiting fee. Modification actions are restricted to Admin.
-    """
+    
     queryset = Doctor.objects.all()
     serializer_class = DoctorSerializer  # Fixed typo: changed from serializer_name
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     
     # Requirements mapping
     filterset_fields = ['department']
-    search_fields = ['user__full_name', 'specialization']  # Fixed: lookup paths using custom user field
+    search_fields = ['user__full_name', 'specialization']  
     ordering_fields = ['visiting_fee']
 
     def get_permissions(self):
@@ -75,7 +89,7 @@ class DoctorViewSet(viewsets.ModelViewSet):
 
 
 # =====================================================================
-# 5. & 6. APPOINTMENT VIEWSET (Role-Based Appointment Control)
+# APPOINTMENT VIEWSET (Role-Based Appointment Control)
 # =====================================================================
 class AppointmentViewSet(viewsets.ModelViewSet):
     """
@@ -113,7 +127,7 @@ class AppointmentViewSet(viewsets.ModelViewSet):
 
 
 # =====================================================================
-# 7. BILLING VIEWSET (Only Admin Access for Confirmed Appointments)
+# BILLING VIEWSET (Only Admin Access for Confirmed Appointments)
 # =====================================================================
 class BillViewSet(viewsets.ModelViewSet):
     """
