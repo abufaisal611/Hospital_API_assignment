@@ -91,13 +91,21 @@ class BillSerializer(serializers.ModelSerializer):
 # =====================================================================
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
-    @classmethod
-    def get_token(cls, user):
-        token = super().get_token(user)
-        token['email'] = user.email
-        token['full_name'] = user.full_name
-        token['role'] = user.role
-        return token
+    email = serializers.EmailField()
+
+    def validate(self, attrs):
+        email = attrs.get("email")
+        password = attrs.get("password")
+
+        user = authenticate(email=email, password=password)
+        if not user:
+            raise serializers.ValidationError("Invalid email or password")
+
+        data = super().validate(attrs)
+        data["email"] = user.email
+        data["role"] = user.role
+        return data
+
 
 
 class ForgotPasswordSerializer(serializers.Serializer):
