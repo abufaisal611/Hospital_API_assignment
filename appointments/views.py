@@ -46,8 +46,7 @@ class ForgotPasswordView(APIView):
     def post(self, request):
         serializer = ForgotPasswordSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        # In a real app, you would generate a token and email it here.
-        # For this learning project, returning a mock success response is perfect.
+        
         return Response({"message": "Password reset link sent to email."}, status=status.HTTP_200_OK)
 
 class ResetPasswordView(APIView):
@@ -55,7 +54,7 @@ class ResetPasswordView(APIView):
     def post(self, request):
         serializer = ResetPasswordSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        # Mock logic matching the serializer validation validation sequence
+        
         return Response({"message": "Password has been successfully updated."}, status=status.HTTP_200_OK)
 
 
@@ -74,7 +73,7 @@ class LoginView(TokenObtainPairView):
 class DoctorViewSet(viewsets.ModelViewSet):
     
     queryset = Doctor.objects.all()
-    serializer_class = DoctorSerializer  # Fixed typo: changed from serializer_name
+    serializer_class = DoctorSerializer  
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     
     # Requirements mapping
@@ -102,7 +101,7 @@ class AppointmentViewSet(viewsets.ModelViewSet):
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     
     filterset_fields = ['status', 'doctor']
-    search_fields = ['patient__full_name', 'doctor__user__full_name']  # Fixed lookup relations
+    search_fields = ['patient__full_name', 'doctor__user__full_name']  
     ordering_fields = ['appointment_date']
     permission_classes = [AppointmentPermission]
 
