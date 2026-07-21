@@ -50,7 +50,7 @@ class AppointmentSerializer(serializers.ModelSerializer):
         model = Appointment
         fields = ['id', 'patient', 'patient_name', 'doctor', 'doctor_name', 'appointment_date', 'appointment_time', 'status']
         read_only_fields = ['id']
-        # Fixed: Correct style for date and time fields in DRF
+        
         extra_kwargs = {
             'appointment_date': {'style': {'input_type': 'date'}},
             'appointment_time': {'style': {'input_type': 'time'}},
