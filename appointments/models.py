@@ -45,7 +45,7 @@ class User(AbstractUser):
     objects = UserManager()
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['full_name', 'phone_number']  # Fixed: Removed 'email' from here
+    REQUIRED_FIELDS = ['full_name', 'phone_number'] 
 
     def __str__(self):
         return f"{self.full_name} ({self.role})"
@@ -96,7 +96,7 @@ class Appointment(models.Model):
             raise ValidationError("Appointment date cannot be in the past.")
 
     def __str__(self):
-        # Fixed attributes to match model fields cleanly
+       
         return f"Patient: {self.patient.full_name} - Doctor: {self.doctor.user.full_name} ({self.appointment_date})"
 
 
